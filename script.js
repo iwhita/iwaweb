@@ -162,53 +162,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize mobile menu for responsive design
     createMobileMenu();
 
-    // Newsletter functionality (integrado con Mailchimp)
-    const newsletterForm = document.getElementById('newsletter-form');
-    if (newsletterForm) {
-        newsletterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const emailInput = document.getElementById('newsletter-email');
-            const email = emailInput.value.trim();
-            
-            if (email) {
-                // Integración con Mailchimp
-                if (typeof window.dojoRequire !== 'undefined') {
-                    // Mailchimp está cargado, usar su API
-                    try {
-                        // Feedback visual inmediato
-                        const button = newsletterForm.querySelector('.newsletter-button');
+    // Newsletter functionality - Permitir envío directo a Mailchimp
+    const newsletterForms = document.querySelectorAll('#newsletter-form');
+    if (newsletterForms.length > 0) {
+        newsletterForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                // NO prevenir el comportamiento por defecto
+                // Permitir que el formulario se envíe a Mailchimp directamente
+                
+                const emailInput = form.querySelector('#newsletter-email, [name="EMAIL"]');
+                const button = form.querySelector('.newsletter-button');
+                
+                if (emailInput && emailInput.value.trim()) {
+                    // Feedback visual mientras se procesa
+                    if (button) {
                         const originalText = button.textContent;
-                        
-                        button.textContent = 'Procesando...';
+                        button.textContent = 'Enviando...';
                         button.disabled = true;
                         
-                        // Simular envío a Mailchimp (reemplazar con la integración real)
+                        // Reset después de un momento (el formulario ya se habrá enviado)
                         setTimeout(() => {
-                            button.textContent = '¡Suscripto! ✓';
-                            button.style.background = '#28a745';
-                            emailInput.value = '';
-                            
-                            setTimeout(() => {
-                                button.textContent = originalText;
-                                button.style.background = '#000';
-                                button.disabled = false;
-                            }, 3000);
-                        }, 1000);
-                        
-                        console.log('Newsletter subscription sent to Mailchimp:', email);
-                        
-                    } catch (error) {
-                        console.error('Error connecting to Mailchimp:', error);
-                        // Fallback behavior
-                        showNewsletterFeedback(newsletterForm, emailInput, 'Error al suscribirse. Intenta nuevamente.');
+                            button.textContent = originalText;
+                            button.disabled = false;
+                        }, 2000);
                     }
-                } else {
-                    // Mailchimp no está cargado, mostrar feedback básico
-                    showNewsletterFeedback(newsletterForm, emailInput, '¡Suscripto! ✓');
-                    console.log('Newsletter subscription (Mailchimp pending):', email);
+                    
+                    console.log('Newsletter subscription submitted to Mailchimp:', emailInput.value);
                 }
-            }
+            });
         });
     }
     
