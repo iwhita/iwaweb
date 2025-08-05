@@ -162,35 +162,113 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize mobile menu for responsive design
     createMobileMenu();
 
-    // Newsletter functionality - Permitir envío directo a Mailchimp
+    // Newsletter functionality - AJAX submission to Mailchimp
     const newsletterForms = document.querySelectorAll('#newsletter-form');
     if (newsletterForms.length > 0) {
         newsletterForms.forEach(form => {
             form.addEventListener('submit', function(e) {
-                // NO prevenir el comportamiento por defecto
-                // Permitir que el formulario se envíe a Mailchimp directamente
+                e.preventDefault(); // Prevenir envío normal
                 
                 const emailInput = form.querySelector('#newsletter-email, [name="EMAIL"]');
                 const button = form.querySelector('.newsletter-button');
+                const honeypot = form.querySelector('[name="b_51e1cc62e7ad74a13d1892105_6376195287"]');
                 
-                if (emailInput && emailInput.value.trim()) {
-                    // Feedback visual mientras se procesa
-                    if (button) {
-                        const originalText = button.textContent;
-                        button.textContent = 'Enviando...';
-                        button.disabled = true;
-                        
-                        // Reset después de un momento (el formulario ya se habrá enviado)
-                        setTimeout(() => {
-                            button.textContent = originalText;
-                            button.disabled = false;
-                        }, 2000);
+                if (!emailInput || !emailInput.value.trim()) {
+                    showMessage(button, 'Por favor ingresa un email válido', 'error');
+                    return;
+                }
+                
+                const email = emailInput.value.trim();
+                
+                // Validación básica de email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showMessage(button, 'Por favor ingresa un email válido', 'error');
+                    return;
+                }
+                
+                // Crear URL para JSONP (evita CORS)
+                const mailchimpUrl = 'https://gmail.us11.list-manage.com/subscribe/post-json?u=51e1cc62e7ad74a13d1892105&id=6376195287';
+                
+                // Feedback visual
+                const originalText = button.textContent;
+                button.textContent = 'Enviando...';
+                button.disabled = true;
+                
+                // Crear script para JSONP
+                const script = document.createElement('script');
+                const callbackName = 'mailchimpCallback_' + Date.now();
+                
+                // Callback global
+                window[callbackName] = function(data) {
+                    // Limpiar el script
+                    document.head.removeChild(script);
+                    delete window[callbackName];
+                    
+                    if (data.result === 'success') {
+                        showMessage(button, '¡Suscripto! ✓', 'success');
+                        emailInput.value = '';
+                        console.log('Newsletter subscription successful:', email);
+                    } else {
+                        let errorMsg = 'Error al suscribirse';
+                        if (data.msg) {
+                            if (data.msg.includes('already subscribed')) {
+                                errorMsg = 'Ya estás suscripto ✓';
+                            } else if (data.msg.includes('invalid')) {
+                                errorMsg = 'Email inválido';
+                            }
+                        }
+                        showMessage(button, errorMsg, data.msg.includes('already subscribed') ? 'success' : 'error');
+                        console.log('Newsletter subscription result:', data);
                     }
                     
-                    console.log('Newsletter subscription submitted to Mailchimp:', emailInput.value);
+                    // Reset button después de 3 segundos
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                        button.style.background = '';
+                    }, 3000);
+                };
+                
+                // Construir URL con parámetros
+                const params = new URLSearchParams({
+                    u: '51e1cc62e7ad74a13d1892105',
+                    id: '6376195287',
+                    EMAIL: email,
+                    c: callbackName
+                });
+                
+                // Agregar honeypot si existe
+                if (honeypot && honeypot.value) {
+                    params.append('b_51e1cc62e7ad74a13d1892105_6376195287', honeypot.value);
                 }
+                
+                script.src = mailchimpUrl + '&' + params.toString();
+                script.onerror = function() {
+                    document.head.removeChild(script);
+                    delete window[callbackName];
+                    showMessage(button, 'Error de conexión', 'error');
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                        button.style.background = '';
+                    }, 3000);
+                };
+                
+                document.head.appendChild(script);
             });
         });
+    }
+    
+    // Función helper para mostrar mensajes
+    function showMessage(button, message, type) {
+        button.textContent = message;
+        if (type === 'success') {
+            button.style.background = '#28a745';
+        } else if (type === 'error') {
+            button.style.background = '#dc3545';
+        }
     }
     
     // Función helper para feedback visual
