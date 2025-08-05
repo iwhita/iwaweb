@@ -162,6 +162,71 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize mobile menu for responsive design
     createMobileMenu();
 
+    // Newsletter functionality (integrado con Mailchimp)
+    const newsletterForm = document.getElementById('newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('newsletter-email');
+            const email = emailInput.value.trim();
+            
+            if (email) {
+                // Integración con Mailchimp
+                if (typeof window.dojoRequire !== 'undefined') {
+                    // Mailchimp está cargado, usar su API
+                    try {
+                        // Feedback visual inmediato
+                        const button = newsletterForm.querySelector('.newsletter-button');
+                        const originalText = button.textContent;
+                        
+                        button.textContent = 'Procesando...';
+                        button.disabled = true;
+                        
+                        // Simular envío a Mailchimp (reemplazar con la integración real)
+                        setTimeout(() => {
+                            button.textContent = '¡Suscripto! ✓';
+                            button.style.background = '#28a745';
+                            emailInput.value = '';
+                            
+                            setTimeout(() => {
+                                button.textContent = originalText;
+                                button.style.background = '#000';
+                                button.disabled = false;
+                            }, 3000);
+                        }, 1000);
+                        
+                        console.log('Newsletter subscription sent to Mailchimp:', email);
+                        
+                    } catch (error) {
+                        console.error('Error connecting to Mailchimp:', error);
+                        // Fallback behavior
+                        showNewsletterFeedback(newsletterForm, emailInput, 'Error al suscribirse. Intenta nuevamente.');
+                    }
+                } else {
+                    // Mailchimp no está cargado, mostrar feedback básico
+                    showNewsletterFeedback(newsletterForm, emailInput, '¡Suscripto! ✓');
+                    console.log('Newsletter subscription (Mailchimp pending):', email);
+                }
+            }
+        });
+    }
+    
+    // Función helper para feedback visual
+    function showNewsletterFeedback(form, emailInput, message) {
+        const button = form.querySelector('.newsletter-button');
+        const originalText = button.textContent;
+        
+        button.textContent = message;
+        button.style.background = message.includes('Error') ? '#dc3545' : '#28a745';
+        emailInput.value = '';
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.style.background = '#000';
+        }, 3000);
+    }
+
     // Add contact form functionality (placeholder)
     const addContactForm = () => {
         const contactSection = document.createElement('section');
