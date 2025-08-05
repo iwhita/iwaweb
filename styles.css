@@ -17,7 +17,7 @@ body {
 
 /* Header Styles */
 .header {
-    padding: 1.5rem 0;
+    padding: 1rem 0;
     position: fixed;
     top: 0;
     left: 0;
@@ -127,7 +127,7 @@ body {
 /* Main Content */
 .main {
     flex: 1;
-    padding-top: 120px;
+    padding-top: 90px;
     position: relative;
 }
 
@@ -147,10 +147,12 @@ body {
     max-width: 1000px;
     margin: 0 auto;
     padding: 4rem 2rem;
+    text-align: center;
 }
 
 .hero-content {
     max-width: 800px;
+    margin: 0 auto;
 }
 
 .hero-title {
@@ -171,6 +173,7 @@ body {
     max-width: 600px;
     line-height: 1.6;
     font-weight: 300;
+    margin: 0 auto;
 }
 
 /* Partners Section */
@@ -695,14 +698,16 @@ html {
 }
 
 .services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 4rem;
-    align-items: start;
+    align-items: center;
 }
 
 .service-category {
-    text-align: left;
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
 }
 
 .category-title {
@@ -944,12 +949,16 @@ html {
     }
     
     .services-section {
-        padding: 4rem 1.5rem 3rem;
+        padding: 4rem 2rem 3rem;
     }
     
     .services-grid {
-        grid-template-columns: 1fr;
         gap: 3rem;
+    }
+    
+    .service-category {
+        text-align: left;
+        padding: 0 1rem;
     }
     
     .category-title {
@@ -960,6 +969,11 @@ html {
     .service-item {
         font-size: 0.95rem;
         padding: 0.5rem 0;
+        margin-left: 1rem;
+    }
+    
+    .service-item::before {
+        left: -1.5rem;
     }
     
     .service-item:hover {
@@ -973,7 +987,7 @@ html {
 
 @media (max-width: 480px) {
     .services-hero {
-        padding: 6rem 1rem 3rem;
+        padding: 6rem 1.5rem 3rem;
     }
     
     .services-title {
@@ -985,11 +999,15 @@ html {
     }
     
     .services-section {
-        padding: 3rem 1rem 2rem;
+        padding: 3rem 1.5rem 2rem;
     }
     
     .services-grid {
         gap: 2.5rem;
+    }
+    
+    .service-category {
+        padding: 0 1.5rem;
     }
     
     .category-title {
@@ -1004,10 +1022,11 @@ html {
     .service-item {
         font-size: 0.9rem;
         padding: 0.4rem 0;
+        margin-left: 1.5rem;
     }
     
     .service-item::before {
-        left: -1.5rem;
+        left: -1.25rem;
     }
     
     .service-item:hover {
@@ -1022,11 +1041,15 @@ html {
 /* Extra small devices */
 @media (max-width: 320px) {
     .services-section {
-        padding: 2rem 0.75rem 1.5rem;
+        padding: 2rem 1rem 1.5rem;
     }
     
     .services-title {
         font-size: 1.75rem;
+    }
+    
+    .service-category {
+        padding: 0 1rem;
     }
     
     .category-title {
@@ -1035,5 +1058,10 @@ html {
     
     .service-item {
         font-size: 0.85rem;
+        margin-left: 1rem;
+    }
+    
+    .service-item::before {
+        left: -1rem;
     }
 }
